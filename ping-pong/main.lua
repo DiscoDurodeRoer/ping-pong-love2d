@@ -1,8 +1,11 @@
 function love.load()
 
-    love.window.setTitle("Pong")
-    love.window.setMode(1600, 800)
+    icono = love.graphics.newImage("icono.png")
+    love.window.setIcon(icono:getData())
 
+
+    love.window.setTitle("Pong")
+    love.window.setFullscreen(true)
     puntuacionJ1 = 0
     puntuacionJ2 = 0
 
@@ -10,26 +13,44 @@ function love.load()
 
     fuente = love.graphics.newFont(70)
 
+    fuentePausa = love.graphics.newFont(15)
+
     sonidoPong = love.audio.newSource("pong.wav")
 
     sonidoPunto = love.audio.newSource("grito.mp3")
+
+    pausa = false
+
 
 end
 
 function love.update(dt)
 
-  moverBarrita(barritaJ1, "w", "s")
-  moverBarrita(barritaJ2, "up", "down")
+  if not pausa then
 
-  rebotarPelota(pelota)
+    moverBarrita(barritaJ1, "w", "s")
+    moverBarrita(barritaJ2, "up", "down")
+
+    rebotarPelota(pelota)
+  end
 
 end
 
 function love.draw()
 
+  if pausa then
+    love.graphics.setFont(fuentePausa)
+    love.graphics.setColor(255, 255, 255)
+    love.graphics.print("Juego pausado, pulsa enter para regresar", 100, 100)
+
+    love.graphics.setColor(105, 105, 105)
+  end
+
   love.graphics.setFont(fuente)
 
-  love.graphics.setColor(255, 255, 255)
+  if not pausa then
+    love.graphics.setColor(255, 255, 255)
+  end
 
   love.graphics.print(puntuacionJ1, (love.graphics.getWidth() / 2)-200, 50 )
   love.graphics.print(puntuacionJ2, (love.graphics.getWidth() / 2)+200, 50 )
@@ -37,13 +58,25 @@ function love.draw()
   love.graphics.rectangle("fill", barritaJ1.x, barritaJ1.y, barritaJ1.ancho, barritaJ1.altura)
   love.graphics.rectangle("fill", barritaJ2.x, barritaJ2.y, barritaJ2.ancho, barritaJ2.altura)
 
-  love.graphics.rectangle("fill", (love.graphics.getWidth() / 2), 25, 25, 150)
-  love.graphics.rectangle("fill", (love.graphics.getWidth() / 2), 225, 25, 150)
-  love.graphics.rectangle("fill", (love.graphics.getWidth() / 2), 425, 25, 150)
-  love.graphics.rectangle("fill", (love.graphics.getWidth() / 2), 625, 25, 150)
-
-  love.graphics.setColor(255, 0, 0)
+  for i=25,love.graphics.getHeight(), 200 do
+    love.graphics.rectangle("fill", (love.graphics.getWidth() / 2), i, 25, 150)
+  end
+  if not pausa then
+    love.graphics.setColor(255, 0, 0)
+  end
   love.graphics.circle("fill", pelota.x, pelota.y, pelota.radio)
+
+end
+
+function love.keypressed(key, scancode, isrepeat)
+
+  if key == "return" then
+    pausa = not pausa
+  end
+
+  if key == "escape" then
+    love.event.quit()
+  end
 
 end
 
@@ -150,14 +183,14 @@ function reset(jugador_punto)
 
   barritaJ1 = {}
   barritaJ1.x = 50
-  barritaJ1.y = 300
+  barritaJ1.y =  love.graphics.getHeight() / 2
   barritaJ1.ancho = 50
   barritaJ1.altura = 250
   barritaJ1.velocidad = 5
 
   barritaJ2 = {}
-  barritaJ2.x = 1500
-  barritaJ2.y = 300
+  barritaJ2.x = love.graphics.getWidth() - 100
+  barritaJ2.y = love.graphics.getHeight() / 2
   barritaJ2.ancho = 50
   barritaJ2.altura = 250
   barritaJ2.velocidad = 5
